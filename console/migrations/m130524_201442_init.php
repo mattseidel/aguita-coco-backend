@@ -37,6 +37,7 @@ class m130524_201442_init extends Migration
         $this->createTable('discount', [
             'id' => $this->primaryKey(),
             'productId' => $this->integer(),
+            'value' => $this->integer()->notNull()->unsigned(),
             'start_date' => $this->date(),
             'end_date' => $this->date(),
         ], $tableOptions);
