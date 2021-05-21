@@ -16,6 +16,8 @@ use Yii;
  */
 class Product extends \yii\db\ActiveRecord
 {
+
+
     /**
      * {@inheritdoc}
      */
@@ -23,6 +25,29 @@ class Product extends \yii\db\ActiveRecord
     {
         return 'product';
     }
+
+    private const SCENARIO_CREATE = 'create_scenario';
+
+    public function scenarios()
+    {
+        $scenario = parent::scenarios();
+        $scenario['create_scenario'] = ['title', 'description', 'price'];
+        return $scenario;
+    }
+
+    public function updateProduct($id)
+    {
+        $product = Product::find($id)->one();
+        $product->scenario = Product::SCENARIO_CREATE;
+        $product->attributes = \Yii::$app->request->getBodyParam;
+
+        if ($product->validate()) {
+            $product->save();
+            return ['message' => 'product created successfully', 'code' => 200];
+        } else
+            return ['message' => 'error creating product', 'code' => 400, 'data' => $product->getErrors()];
+    }
+
 
     /**
      * {@inheritdoc}
@@ -32,6 +57,7 @@ class Product extends \yii\db\ActiveRecord
         return [
             [['title', 'price'], 'required'],
             [['description'], 'string'],
+            [['description'], 'default', 'value' => ''],
             [['price'], 'integer'],
             [['title'], 'string', 'max' => 255],
         ];
@@ -64,12 +90,13 @@ class Product extends \yii\db\ActiveRecord
      * Funcion para crear un producto
      * @param $req
      */
-    public static function createProduct($title, $description, $price){
+    public static function createProduct($title, $description, $price)
+    {
         $product = new Product();
         $product->title = $title;
         $product->description = $description;
         $product->price = $price;
-        if($product->validate()){
+        if ($product->validate()) {
             return $product;
         }
         return ['error' => $product->errors];

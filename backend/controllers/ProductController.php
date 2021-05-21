@@ -18,8 +18,12 @@ class ProductController extends ActiveController
     public function actions()
     {
         $actions = parent::actions();
-        unset($actions['index']);
+        unset($actions['delete']);
         return $actions;
+    }
+
+    public function actioUpdate($id){
+
     }
 
     /**
@@ -27,11 +31,12 @@ class ProductController extends ActiveController
      * @return \yii\web\Response Retorna un objeto en notacion JSON segun las peticiones
      * @throws \yii\base\InvalidConfigException
      */
-    public function actionCreateWithDiscount(){
+    public function actionCreateWithDiscount()
+    {
         $req = $this->request->getBodyParams();
 
         //Validacion de parametros del producto
-        if(!isset($req['title']) || !isset($req['description']) || !isset($req['price'])){
+        if (!isset($req['title']) || !isset($req['description']) || !isset($req['price'])) {
             return $this->asJson([
                 'ok' => false,
                 'msg' => 'Faltan alguno de estos parametros en el producto (title, description, price)'
@@ -39,7 +44,7 @@ class ProductController extends ActiveController
         }
 
         //Validacion de parametros del descuento del producto
-        if(!isset($req['value']) || !isset($req['start_date']) || !isset($req['end_date'])){
+        if (!isset($req['value']) || !isset($req['start_date']) || !isset($req['end_date'])) {
             return $this->asJson([
                 'ok' => false,
                 'msg' => 'Faltan alguno de estos parametros en el descuento del producto (value, start_date, end_date)'
@@ -53,10 +58,10 @@ class ProductController extends ActiveController
         $discount = Discount::createDiscount($req['start_date'], $req['end_date'], $req['value']);
 
         //Validar que no hayan errores
-        if(!isset($product['error']) && !isset($discount['error'])){
-            $product->save();//Guardar producto en la base de datos
-            $discount = Discount::addIdKey($discount, $product->id);//Anadir la llave de relacion
-            $discount->save();//Guardar descuento en la base de datos
+        if (!isset($product['error']) && !isset($discount['error'])) {
+            $product->save(); //Guardar producto en la base de datos
+            $discount = Discount::addIdKey($discount, $product->id); //Anadir la llave de relacion
+            $discount->save(); //Guardar descuento en la base de datos
             return $this->asJson([
                 'ok' => true,
                 'msg' => 'Producto guardado con su descuento correspondiente exitosamente!',
@@ -68,11 +73,11 @@ class ProductController extends ActiveController
         //Si llega a esta parte es porque hay errores
         $errors = [];
 
-        if( isset($discount['error']) ){
+        if (isset($discount['error'])) {
             array_push($errors, $discount['error']);
         }
 
-        if( isset($product['error']) ){
+        if (isset($product['error'])) {
             array_push($errors, $product['error']);
         }
 
@@ -81,5 +86,4 @@ class ProductController extends ActiveController
             'error' => $errors
         ]);
     }
-
 }
