@@ -79,7 +79,7 @@ class Product extends \yii\db\ActiveRecord
     /**
      * function to get products from database
      * @return array products
-     */
+     */ 
     public static function getProducts()
     {
         return self::find()->all();
