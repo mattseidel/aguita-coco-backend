@@ -15,6 +15,9 @@ return [
     'components' => [
         'request' => [
             'csrfParam' => '_csrf-backend',
+            'parsers' => [
+                'application/json' => 'yii\web\JsonParser',
+            ]
         ],
         'user' => [
             'identityClass' => 'common\models\User',
@@ -37,14 +40,20 @@ return [
         'errorHandler' => [
             'errorAction' => 'site/error',
         ],
-        /*
         'urlManager' => [
             'enablePrettyUrl' => true,
-            'showScriptName' => false,
+            'showScriptName' => true,
             'rules' => [
+                //Product
+                'POST /product-with' => 'product/create-with-discount',//Crear producto con descuento
+                'POST /product' => 'product/create',//Crear producto con descuento
+
+                //Discount
+                'GET /discount/test' => 'discount/test',//Test
+                'POST /discount' => 'discount/test',//Crear descuento
+                'POST /discount/add-discount-to-product' => 'discount/add-discount',//Crear descuento a un producto sin descuento
             ],
         ],
-        */
     ],
     'params' => $params,
 ];
