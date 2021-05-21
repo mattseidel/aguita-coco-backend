@@ -1,6 +1,6 @@
 <?php
 
-namespace app\models;
+namespace backend\models;
 
 use Yii;
 
@@ -17,17 +17,6 @@ use Yii;
 class Product extends \yii\db\ActiveRecord
 {
 
-    public const SCENARIO_CREATE = 'create_product';
-    public const SCENARIO_UPDATE = 'update_product';
-
-
-    public function scenarios()
-    {
-        $scenarios = parent::scenarios();
-        $scenarios['create_product'] = ['title', 'description', 'price'];
-        $scenarios['update_product'] = ['title', 'description', 'price'];
-        return $scenarios;
-    }
 
     /**
      * {@inheritdoc}
@@ -37,6 +26,29 @@ class Product extends \yii\db\ActiveRecord
         return 'product';
     }
 
+    private const SCENARIO_CREATE = 'create_scenario';
+
+    public function scenarios()
+    {
+        $scenario = parent::scenarios();
+        $scenario['create_scenario'] = ['title', 'description', 'price'];
+        return $scenario;
+    }
+
+    public function updateProduct($id)
+    {
+        $product = Product::find($id)->one();
+        $product->scenario = Product::SCENARIO_CREATE;
+        $product->attributes = \Yii::$app->request->getBodyParam;
+
+        if ($product->validate()) {
+            $product->save();
+            return ['message' => 'product created successfully', 'code' => 200];
+        } else
+            return ['message' => 'error creating product', 'code' => 400, 'data' => $product->getErrors()];
+    }
+
+
     /**
      * {@inheritdoc}
      */
@@ -45,13 +57,11 @@ class Product extends \yii\db\ActiveRecord
         return [
             [['title', 'price'], 'required'],
             [['description'], 'string'],
-            ['description',  'default', 'value' => ''],
-            [['price'], 'integer', 'min' => 1],
+            [['description'], 'default', 'value' => ''],
+            [['price'], 'integer'],
             [['title'], 'string', 'max' => 255],
         ];
     }
-
-
 
     /**
      * {@inheritdoc}
@@ -77,25 +87,18 @@ class Product extends \yii\db\ActiveRecord
     }
 
     /**
-     * function to get products from database
-     * @return array products
-     */ 
-    public static function getProducts()
-    {
-        return self::find()->all();
-    }
-
-    public static function createProduct($id)
+     * Funcion para crear un producto
+     * @param $req
+     */
+    public static function createProduct($title, $description, $price)
     {
         $product = new Product();
-        $product->scenario = Product::SCENARIO_UPDATE;
-        $product->attributes = \Yii::$app->request->getBodyParams();
+        $product->title = $title;
+        $product->description = $description;
+        $product->price = $price;
         if ($product->validate()) {
-            $newProduct = self::findOne($id);
-            $newProduct->attributes = $product->attributes;
-            $newProduct->save();
-            return ['message' => 'product saved successfully', 'code' => 200];
+            return $product;
         }
-        return ['message' => 'failed to save product', 'code' => 400, 'data' => $product->getErrors()];
+        return ['error' => $product->errors];
     }
 }
