@@ -6,12 +6,27 @@ $enableCfrsValidation = false;
 
 use backend\models\Discount;
 use backend\models\Product;
+use yii\filters\Cors;
+use yii\helpers\ArrayHelper;
 use yii\rest\ActiveController;
 
 class ProductController extends ActiveController
 {
 
     public $modelClass = 'backend\models\product';
+
+    /**
+     * Funcion para evitar el CORS
+     * @return array|array[]
+     */
+    public function behaviors()
+    {
+        return ArrayHelper::merge([
+            [
+                'class' => Cors::className(),
+            ],
+        ], parent::behaviors());
+    }
 
     /**
      * Funcion para eliminar acciones de la api rest
