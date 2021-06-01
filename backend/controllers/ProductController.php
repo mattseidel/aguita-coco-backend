@@ -70,7 +70,7 @@ class ProductController extends ActiveController
             return $this->asJson([
                 'ok' => false,
                 'msg' => 'Faltan alguno de estos parametros en el producto (title, description, price)'
-            ]);
+            ])->setStatusCode(400);
         }
 
         //Validacion de parametros del descuento del producto
@@ -78,7 +78,7 @@ class ProductController extends ActiveController
             return $this->asJson([
                 'ok' => false,
                 'msg' => 'Faltan alguno de estos parametros en el descuento del producto (value, start_date, end_date)'
-            ]);
+            ])->setStatusCode(400);
         }
 
         //Creacion del producto
@@ -92,12 +92,12 @@ class ProductController extends ActiveController
             $product->save(); //Guardar producto en la base de datos
             $discount = Discount::addIdKey($discount, $product->id); //Anadir la llave de relacion
             $discount->save(); //Guardar descuento en la base de datos
+            $product->discounts = $discount;
             return $this->asJson([
                 'ok' => true,
-                'msg' => 'Producto guardado con su descuento correspondiente exitosamente!',
-                'product' => $product,
-                'discount' => $discount
-            ]);
+                'msg' => 'Producto guardado exitosamente!',
+                'product' => $product
+            ])->setStatusCode(200);
         }
 
         //Si llega a esta parte es porque hay errores
