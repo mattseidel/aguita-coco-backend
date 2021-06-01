@@ -45,8 +45,8 @@ return [
             'showScriptName' => true,
             'rules' => [
                 //Product
-                'POST /product-with' => 'product/create-with-discount',//Crear producto con descuento
-                'POST /product' => 'product/create',//Crear producto con descuento
+                //'POST /product-with' => 'product/create-with-discount',//Crear producto con descuento
+                'POST /product' => 'product/create',//Crear producto
 
                 //Discount
                 'GET /discount/test' => 'discount/test',//Test

@@ -3,6 +3,7 @@
 namespace backend\models;
 
 use Yii;
+use yii\base\Arrayable;
 
 /**
  * This is the model class for table "product".
@@ -14,9 +15,21 @@ use Yii;
  *
  * @property Discount[] $discounts
  */
-class Product extends \yii\db\ActiveRecord
+class Product extends \yii\db\ActiveRecord implements Arrayable
 {
 
+    public $discounts;
+
+    public function fields()
+    {
+        return [
+            'id' => 'id',
+            'title' => 'title',
+            'description' => 'description',
+            'price' => 'price',
+            'discounts' => 'discounts',
+        ];
+    }
 
     /**
      * {@inheritdoc}
@@ -26,7 +39,7 @@ class Product extends \yii\db\ActiveRecord
         return 'product';
     }
 
-    private const SCENARIO_CREATE = 'create_scenario';
+    const SCENARIO_CREATE = 'create_scenario';
 
     public function scenarios()
     {
@@ -60,6 +73,7 @@ class Product extends \yii\db\ActiveRecord
             [['description'], 'default', 'value' => ''],
             [['price'], 'integer'],
             [['title'], 'string', 'max' => 255],
+            [['discount'], 'safe'],
         ];
     }
 

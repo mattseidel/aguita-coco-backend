@@ -15,6 +15,8 @@ class ProductController extends ActiveController
 
     public $modelClass = 'backend\models\product';
 
+
+
     /**
      * Funcion para evitar el CORS
      * @return array|array[]
@@ -37,6 +39,17 @@ class ProductController extends ActiveController
         $actions = parent::actions();
         unset($actions['delete']);
         return $actions;
+    }
+
+    public function actionAllProducts()
+    {
+        // Todos los productos con ofertas vigentes
+        $products = \Yii::$app->db->createCommand('CALL traerOfertasVigentes();')->queryAll();
+
+        return $this->asJson([
+            'ok' => true,
+            'products' => $products
+        ]);
     }
 
     public function actioUpdate($id)
@@ -101,10 +114,32 @@ class ProductController extends ActiveController
         return $this->asJson([
             'ok' => false,
             'error' => $errors
-        ]);
+        ])->setStatusCode(400);
     }
     public function actionUpdate($id)
     {
         return Product::createProduct($id);
+    }
+
+    public function actionRecentToOld()
+    {
+        // Todos los productos vigentes del mas reciente al mas antiguo
+        $products = \Yii::$app->db->createCommand('CALL traerRecienteAntiguo();')->queryAll();
+
+        return $this->asJson([
+            'ok' => true,
+            'products' => $products
+        ]);
+    }
+
+    public function actionOldToRecent()
+    {
+        // Todos los productos vigentes del mas antiguo al mas reciente
+        $products = \Yii::$app->db->createCommand('CALL traerAntiguoReciente();')->queryAll();
+
+        return $this->asJson([
+            'ok' => true,
+            'products' => $products
+        ]);
     }
 }

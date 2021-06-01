@@ -4,12 +4,27 @@ namespace backend\controllers;
 
 use backend\models\Discount;
 use backend\models\Product;
+use yii\filters\Cors;
+use yii\helpers\ArrayHelper;
 use yii\rest\ActiveController;
 
 class DiscountController extends ActiveController
 {
 
     public $modelClass = 'backend\models\discount';
+
+    /**
+     * Funcion para evitar el CORS
+     * @return array|array[]
+     */
+    public function behaviors()
+    {
+        return ArrayHelper::merge([
+            [
+                'class' => Cors::className(),
+            ],
+        ], parent::behaviors());
+    }
 
     /**
      * Funcion para eliminar acciones de la api rest
@@ -36,11 +51,10 @@ class DiscountController extends ActiveController
         //Por cada descuento asignar su producto
         $result = array();
         foreach ($discounts as $discount){
-            $addProperty = [
-                'discount' => $discount,
-                'product' => $discount->getProduct()->all()
-            ];
-            array_push($result, $addProperty);
+            $object = new \stdClass();
+            $object->product = $discount;
+            $object->discount= $discount->getProduct()->all();
+            array_push($result, $object);
         }
 
         return $result;
@@ -78,7 +92,7 @@ class DiscountController extends ActiveController
             return $this->asJson([
                 'ok' => false,
                 'msg' => $discount['error']
-            ]);
+            ])->statusCode(400);
         }
 
         //Crear la relacion y guardar
