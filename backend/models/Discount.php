@@ -2,6 +2,7 @@
 
 namespace backend\models;
 
+use backend\helpers\Helpers;
 use Yii;
 
 /**
@@ -32,11 +33,29 @@ class Discount extends \yii\db\ActiveRecord
     {
         return [
             [['productId', 'value'], 'integer'],
-            [['value'], 'required'],
+            [['value'], 'in', 'range' => range(0, 100), 'message' => 'El valor del porcentaje no esta dentro del rango de 0 a 100'],
             [['start_date', 'end_date'], 'date', 'format' => 'yyyy-M-d', 'message' => 'El parametro {attribute} no es una fecha valida'],
-            ['end_date', 'compare', 'compareAttribute' => 'start_date', 'operator' => '>'],
+            [['value'], 'validateDiscount'],
+            ['end_date', 'compare', 'compareAttribute' => 'start_date', 'operator' => '>='],
             [['productId'], 'exist', 'skipOnError' => true, 'targetClass' => Product::className(), 'targetAttribute' => ['productId' => 'id']],
         ];
+    }
+
+    /**
+     * Validador personalizado para verificar fechas
+     * @param $attribute
+     * @param $params
+     */
+    public function validateDiscount($attribute, $params){
+        if ($this->value == 0){//Si el descuento es 0 NO deberia tener fechas
+            if (Helpers::validateDate($this->start_date) || Helpers::validateDate($this->end_date)){
+                $this->addError($attribute, 'El descuento de 0 no puede tener fechas');
+            }
+        }else{// En caso contrario SI deberia tener fechas
+            if (!Helpers::validateDate($this->start_date) || !Helpers::validateDate($this->end_date)){
+                $this->addError($attribute, 'Debe administrar el rango de fechas válido para descuentos superiores a 0');
+            }
+        }
     }
 
     /**
